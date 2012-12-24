@@ -8,7 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-typedef void(^imageBlock)(NSURL * url, NSImage * image);
+typedef void(^imageBlock)(NSImage * image);
 
 @interface MainPeopleViewController : NSViewController <NSTableViewDataSource>
 {

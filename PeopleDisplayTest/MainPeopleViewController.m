@@ -13,7 +13,7 @@
 
 @end
 
-void NSImageFromURL( NSURL * URL, void (^imageBlock)(NSURL * url, NSImage * image), void (^errorBlock)(void) )
+void NSImageFromURL( NSURL * URL, void (^imageBlock)(NSImage * image), void (^errorBlock)(void) )
 {
     dispatch_async( dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0 ), ^(void)
                    {
@@ -42,13 +42,16 @@ void NSImageFromURL( NSURL * URL, void (^imageBlock)(NSURL * url, NSImage * imag
                            
                            if(data)
                            {
-                               NSURL * someURL = NULL;
                                NSImage * image = [[NSImage alloc] initWithData:data];
                                dispatch_async( dispatch_get_main_queue(), ^(void){
                                    if( image != nil )
                                    {
-                                       imageBlock(someURL, image);
+                                       imageBlock(image);
                                    } else {
+                                       
+                                       // right now error block is being passed in as NULL, so we don't
+                                       // do any error reporting or error checking but another version
+                                       // might be able to... we'll see about this
                                        errorBlock();
                                    }
                                });
@@ -107,7 +110,7 @@ void NSImageFromURL( NSURL * URL, void (^imageBlock)(NSURL * url, NSImage * imag
                                 NSLog( @"url is %@", [urlElement stringValue]);
                                 newPerson.urlToImage = [NSURL URLWithString: [urlElement stringValue]];
                                 
-                                NSImageFromURL(newPerson.urlToImage,^(NSURL * url, NSImage * image){
+                                NSImageFromURL(newPerson.urlToImage,^(NSImage * image){
                                     newPerson.image = image;
 
                                     // reload the picture if the cell is visible
@@ -134,6 +137,9 @@ void NSImageFromURL( NSURL * URL, void (^imageBlock)(NSURL * url, NSImage * imag
             NSLog( @"error while retrieving XML document - %@", [error localizedDescription]);
         }
         
+        // done parsing the XML, reload -- err, load -- the table
+        //
+        // in a future revision, I may end up inserting each row as the xml is being parsed instead of doing a full blown reloadData
         [personTable reloadData];
     }
 }
